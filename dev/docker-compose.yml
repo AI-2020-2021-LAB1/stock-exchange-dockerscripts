@@ -1,0 +1,80 @@
+version: '3'
+
+services:
+
+  ai2020-front:
+    image: km2442/prz-stock-trader-front
+    restart: always
+    container_name: ai2020-front
+    networks: 
+      - default
+      - ai2020-network
+    environment:
+      VIRTUAL_HOST: devfront.ai2020prz.tk
+
+  ai2020-back:
+    image: km2442/prz-stock-trader-back
+    restart: always
+    container_name: ai2020-back
+    networks: 
+      - default
+      - ai2020-network
+    ports:
+      - 8000:8080
+    environment:
+      POSTGRES_URL: ai2020-backdb:5432
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: postgres
+        
+  ai2020-backdb:
+    image: postgres:12.4
+    restart: always
+    container_name: ai2020-backdb
+    networks: 
+      - default
+      - ai2020-network
+    ports: 
+      - 5431:5432
+    environment: 
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+    volumes: 
+      - ./postgres/back:/var/lib/postgresql/data
+
+  ai2020-brickdb:
+    image: postgres:12.4
+    restart: always
+    container_name: ai2020-brickdb
+    networks: 
+      - default
+      - ai2020-network
+    ports:
+      - 5432:5432
+    environment: 
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+    volumes: 
+      - ./postgres/brick:/var/lib/postgresql/data
+
+  ai2020-dbadmin:
+    image: dpage/pgadmin4
+    restart: always
+    container_name: ai2020-dbadmin
+    networks: 
+      - default
+      - ai2020-network
+    environment: 
+      VIRTUAL_HOST: devdbadmin.ai2020prz.tk
+      LETSENCRYPT_HOST: devdbadmin.ai2020prz.tk
+      PGADMIN_DEFAULT_EMAIL: admin@ai2020prz.tk
+      PGADMIN_DEFAULT_PASSWORD: admin
+    volumes: 
+      - ./dbadmin:/var/lib/pgadmin:rw
+
+networks:
+  default:
+    external:
+      name: nginx-proxy
+  ai2020-network:
+    driver: bridge

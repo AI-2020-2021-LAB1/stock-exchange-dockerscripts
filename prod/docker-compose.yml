@@ -1,0 +1,106 @@
+version: '3'
+
+services:
+
+  ai2020-front:
+    image: km2442/prz-stock-trader-front
+    restart: always
+    container_name: ai2020-front
+    networks: 
+      - nginx-proxy
+      - ai2020-network
+    environment:
+      VIRTUAL_HOST: front.ai2020prz.tk
+      LETSENCRYPT_HOST: front.ai2020prz.tk
+        
+  ai2020-backdb:
+    image: postgres:alpine
+    restart: always
+    container_name: ai2020-backdb
+    networks: 
+      - nginx-proxy
+      - ai2020-network
+    ports: 
+      - 5431:5432
+    environment: 
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+    volumes: 
+      - ./postgres/back:/var/lib/postgresql/data
+
+  ai2020-brickdb:
+    image: postgres:alpine
+    restart: always
+    container_name: ai2020-brickdb
+    networks: 
+      - nginx-proxy
+      - ai2020-network
+    ports:
+      - 5432:5432
+    environment: 
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+    volumes: 
+      - ./postgres/brick:/var/lib/postgresql/data
+
+  ai2020-dbadmin:
+    image: dpage/pgadmin4
+    restart: always
+    container_name: ai2020-dbadmin
+    networks: 
+      - nginx-proxy
+      - ai2020-network
+    environment: 
+      VIRTUAL_HOST: dbadmin.ai2020prz.tk
+      LETSENCRYPT_HOST: dbadmin.ai2020prz.tk
+      PGADMIN_DEFAULT_EMAIL: admin@ai2020prz.tk
+      PGADMIN_DEFAULT_PASSWORD: admin
+    volumes: 
+      - ./dbadmin:/var/lib/pgadmin:rw
+
+  nginx-proxy:
+    image: jwilder/nginx-proxy
+    container_name: nginx-proxy
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./volumes/nginx/certs:/etc/nginx/certs
+      - ./volumes/nginx/vhost.d:/etc/nginx/vhost.d
+      - ./volumes/nginx/html:/usr/share/nginx/html
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+
+  letsencrypt:
+    image: jrcs/letsencrypt-nginx-proxy-companion
+    container_name: nginx-proxy-le
+    restart: always
+    environment:
+      NGINX_PROXY_CONTAINER: nginx-proxy
+      DEFAULT_EMAIL: admin@ai2020prz.tk
+    volumes:
+      - ./volumes/nginx/certs:/etc/nginx/certs
+      - ./volumes/nginx/vhost.d:/etc/nginx/vhost.d
+      - ./volumes/nginx/html:/usr/share/nginx/html
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      
+  portainer:
+    image: portainer/portainer-ce
+    restart: always
+    container_name: portainer
+    environment:
+      VIRTUAL_PORT: 9000
+      VIRTUAL_HOST: manager.ai2020prz.tk
+      LETSENCRYPT_HOST: manager.ai2020prz.tk
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+
+volumes:
+  portainer_data:
+
+networks:
+  nginx-proxy:
+    driver: bridge
+  ai2020-network:
+    driver: bridge
