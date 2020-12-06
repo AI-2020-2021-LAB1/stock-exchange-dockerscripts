@@ -6,6 +6,8 @@ services:
     image: km2442/prz-stock-trader-front:stable
     restart: always
     container_name: ai2020-front
+    ports:
+      - 80:80
     networks: 
       - ai2020-network
 
