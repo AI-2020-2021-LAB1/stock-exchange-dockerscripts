@@ -33,10 +33,9 @@ services:
     restart: always
     container_name: ai2020-backdb
     networks: 
-      - default
       - ai2020-network
-    ports: 
-      - 5431:5432
+    expose: 
+      - 5432
     environment: 
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
