@@ -25,18 +25,20 @@ services:
       POSTGRES_PASSWORD: admin
       POSTGRES_DB: postgres
       SPRING_PROFILES_ACTIVE: data
+      MAX_DB_CONNECTIONS: 48
         
   ai2020-backdb:
-    image: postgres:alpine
+    image: postgres:12.4
     restart: always
     container_name: ai2020-backdb
     networks: 
       - ai2020-network
-    ports: 
-      - 5431:5432
+    expose: 
+      - 5432
     environment: 
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
+    # command: ["postgres", "-c", "log_statement=all"]
     volumes: 
       - ./postgres/back:/var/lib/postgresql/data
 
@@ -49,8 +51,8 @@ services:
     ports:
       - 5432:5432
     environment: 
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: admin
+      POSTGRES_USER: brick
+      POSTGRES_PASSWORD: brick
     volumes: 
       - ./postgres/brick:/var/lib/postgresql/data
 
