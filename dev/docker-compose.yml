@@ -69,14 +69,12 @@ services:
     restart: always
     container_name: ai2020-brickdb
     networks: 
-      - default
       - ai2020-network
-    ports:
-      - 5432:5432
+    expose:
+      - 5432
     environment: 
       POSTGRES_USER: brick
       POSTGRES_PASSWORD: brick
-    #command: ["postgres", "-c", "log_statement=all", "-c", "log_connections=on", "-c", "log_disconnections=on", "-c", "log_hostname=on"]
     volumes: 
       - ./postgres/brick:/var/lib/postgresql/data
 
